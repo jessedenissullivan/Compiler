@@ -6,11 +6,11 @@
 (define print-x86
   (lambda (e)
     (match e
-      [`(program ,vars ,exprs)
-       (define label (format "\t.globl _main\n"))
+      [`(program ,vars ,exprs)       
        (if (equal? (system-type 'os) 'macosx)
-           (set! label (string-append label "_main:"))
-           (set! label (string-append label "main:")))
+           (define label "_main:")
+           (define label "main:"))
+       (define x86 (format "\t.globl ~a\n") label)
        (define prog (format "~a\n" label))
        (define instrs (map print-x86 exprs))
        (string-append* prog instrs)]

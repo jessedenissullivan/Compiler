@@ -391,7 +391,7 @@
         (error (format "test ~a failed, unexpected type error" test-name)) 
         '())
     (if typechecks
-        (if (system (format "gcc -c -std=c99 runtime.o tests/~a.s" test-name))
+        (if (system (format "gcc -c -g -std=c99 -o runtime.o tests/~a.s" test-name))
             (void) (exit))
         '())
     (let* ([input (if (file-exists? (format "tests/~a.in" test-name))

@@ -15,7 +15,7 @@
 (define passes
   (list (list "Uniquify" (uniquify (make-hash)) interp-R1)
         (list "Flatten" flatten interp-R1)
-        (list"Select-instructions" select-instr interp-R1)
+        (list "Select-instructions" select-instr interp-R1)
         (list "Assign-homes" (assign-homes (list)) interp-R1)
         (list "Patch-instructions" patch-instr interp-R1)
         (list "Print-x86" print-x86 interp-R1)))
