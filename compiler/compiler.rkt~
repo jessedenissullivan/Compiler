@@ -1,0 +1,36 @@
+#lang racket
+
+(require "uniquify.rkt"
+         "flatten.rkt"
+         "select-instr.rkt"
+         "assign-homes.rkt"
+         "patch-instr.rkt"
+         "print-x86.rkt"         
+         "typecheck-R1.rkt"
+         "typecheck-R2.rkt"
+         "utilities.rkt"
+         "../interpreters/interp-R1.rkt"
+         "test_comp.rkt")
+
+(provide compile
+         compile-C0
+         compiler)
+
+(define compiler (compile-file typecheck-R1 passes))
+
+(define compile-C0
+  (lambda (prog)
+    (flatten-prog
+     ((uniquify '())
+     prog))))
+
+(define compile
+  (lambda (prog)
+    (print-x86
+     (patch-instr
+      ((assign-homes (list))
+       (select-instr
+        (compile-C0 prog)))))))
+
+(define prog (read-program "tests/R1_8.rkt"))
+(compile-C0 prog)

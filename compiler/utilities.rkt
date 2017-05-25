@@ -8,11 +8,11 @@
          fix while 
          label-name lookup  make-dispatcher assert
          read-fixnum read-program 
-         compile compile-file check-passes interp-tests compiler-tests
-         make-graph add-edge adjacent vertices print-dot
+	 compile compile-file check-passes interp-tests compiler-tests
+	 make-graph add-edge adjacent vertices print-dot
          use-minimal-set-of-registers!
-         general-registers registers-for-alloc caller-save callee-save
-         arg-registers rootstack-reg register->color registers align
+	 general-registers registers-for-alloc caller-save callee-save
+	 arg-registers rootstack-reg register->color registers align
          byte-reg->full-reg print-by-type strip-has-type)
 
 ;; debug state is a nonnegative integer.
@@ -56,25 +56,25 @@
             [lno (syntax-line stx)])
        #`(begin
            (printf "~a @ ~a:~a\n" label #,src #,lno)
-           (begin
-             (printf "~a:\n" 'value)
-             (if (string? value)
-                 (display value)
-                 (pretty-print value))
-             (newline))
-           ...
-           (newline)))]))
+        (begin
+          (printf "~a:\n" 'value)
+          (if (string? value)
+              (display value)
+              (pretty-print value))
+          (newline))
+        ...
+        (newline)))]))
 
 ;; This series of macros are used for debuging purposes
 ;; and print out
 (define-syntax-rule (define-debug-level name level)
-  (...
-   (define-syntax (name stx)
-     (syntax-case stx ()
-       [(_ label value ...)
-        #`(when (at-debug-level? level)
-            #,(syntax/loc stx
-                (print-label-and-values label value ...)))]))))
+    (...
+     (define-syntax (name stx)
+      (syntax-case stx ()
+        [(_ label value ...)
+         #`(when (at-debug-level? level)
+             #,(syntax/loc stx
+                 (print-label-and-values label value ...)))]))))
 
 ;; Print out debugging info in a somewhat organized manner
 ;; (debug "foo" (car '(1 2)) 'foo) should print
@@ -173,7 +173,7 @@
 (define (read-fixnum)
   (define r (read))
   (cond [(fixnum? r) r]
-        [else (error 'read "expected an integer")]))
+	[else (error 'read "expected an integer")]))
 
 ;; Read an entire .rkt file wrapping the s-expressions in
 ;; a list whose head is 'program.
@@ -193,11 +193,11 @@
 (define (make-dispatcher mt)
   (lambda (e . rest)
     (match e
-      [`(,tag ,args ...)
-       (apply (hash-ref mt tag) (append rest args))]
-      [else
-       (error "no match in dispatcher for " e)]
-      )))
+       [`(,tag ,args ...)
+	(apply (hash-ref mt tag) (append rest args))]
+       [else
+	(error "no match in dispatcher for " e)]
+       )))
 
 ;; The check-passes function takes a compiler name (a string), a
 ;; typechecker (see below), a description of the passes (see below),
@@ -226,7 +226,7 @@
     [`(has-type ,e ,T)
      (strip-has-type e)]
     [`(,(app strip-has-type e*) ...)
-     `(,@e*)]
+      `(,@e*)]
     [else
      e]))
 
@@ -242,61 +242,61 @@
     (define type-error-expected (file-exists? (format "tests/~a.tyerr" test-name)))
     (define tsexp (test-typecheck typechecker sexp))    
     (cond
-      [(and type-error-expected tsexp)
-       (error (format "expected type error in compiler '~a', case ~a, but no error raised by typechecker" name test-name))]
-      [type-error-expected 'expected-type-error]
-      [tsexp 
-       (let loop ([passes passes] [p tsexp]
-                                  [result (cond [initial-interp
-                                                 (if (file-exists? input-file-name)
-                                                     (with-input-from-file input-file-name
-                                                       (lambda () (initial-interp tsexp)))
-                                                     (initial-interp tsexp))]
-                                                [else 
-                                                 (if (file-exists? result-file-name)
-                                                     (call-with-input-file result-file-name
-                                                       (lambda (f) (string->number (read-line f))))
-                                                     42)])])
-         (cond [(null? passes)  result]
-               [else
-                (match (car passes)
-                  [`(,pass-name ,pass ,interp)
-                   (let ([input p])
-                     (debug (string-append "running pass: " pass-name
-                                           " on test: " test-name)
-                            input))
-                   (define new-p (pass p))
-                   (let ([output new-p])
-                     (trace (string-append "running pass: " pass-name
-                                           " on test: " test-name)
-                            output))
-                   (cond [interp
-                          (let ([new-result
-                                 ;; if there is an input file with the same name
-                                 ;; as this test bind current-input-port to that
-                                 ;; file's input port so that the interpreters
-                                 ;; can use it as test input.
-                                 (if (file-exists? input-file-name) 
-                                     (with-input-from-file input-file-name
-                                       (lambda () (interp new-p)))
-                                     (interp new-p))])
+     [(and type-error-expected tsexp)
+      (error (format "expected type error in compiler '~a', case ~a, but no error raised by typechecker" name test-name))]
+     [type-error-expected 'expected-type-error]
+     [tsexp 
+      (let loop ([passes passes] [p tsexp]
+                 [result (cond [initial-interp
+                                (if (file-exists? input-file-name)
+                                    (with-input-from-file input-file-name
+                                      (lambda () (initial-interp tsexp)))
+                                    (initial-interp tsexp))]
+                               [else 
+                                (if (file-exists? result-file-name)
+                                    (call-with-input-file result-file-name
+                                      (lambda (f) (string->number (read-line f))))
+                                    42)])])
+        (cond [(null? passes)  result]
+              [else
+               (match (car passes)
+                 [`(,pass-name ,pass ,interp)
+                  (let ([input p])
+                    (debug (string-append "running pass: " pass-name
+					  " on test: " test-name)
+                           input))
+                  (define new-p (pass p))
+                  (let ([output new-p])
+                    (trace (string-append "running pass: " pass-name
+					  " on test: " test-name)
+                           output))
+                  (cond [interp
+                         (let ([new-result
+                                ;; if there is an input file with the same name
+                                ;; as this test bind current-input-port to that
+                                ;; file's input port so that the interpreters
+                                ;; can use it as test input.
+                                (if (file-exists? input-file-name) 
+                                    (with-input-from-file input-file-name
+                                      (lambda () (interp new-p)))
+                                    (interp new-p))])
                            
-                            (cond [result
-                                   (cond [(equal? result new-result)
-                                          (loop (cdr passes) new-p new-result)]
-                                         [else
-                                          (display "in program")(newline)
-                                          (pretty-print new-p)(newline)
-                                          (error 'check-passes
-                                                 "differing results in compiler '~a' on test '~a' pass '~a', expected ~a, not ~a"
-                                                 name test-name pass-name result
-                                                 new-result
-                                                 )])]
-                                  [else ;; no result to check yet
-                                   (loop (cdr passes) new-p new-result)]))]
-                         [else
-                          (loop (cdr passes) new-p result)])])]))]
-      [else (error 'check-passes "unexpected type error raised by compiler '~a'" name)])))
+                           (cond [result
+                                  (cond [(equal? result new-result)
+                                         (loop (cdr passes) new-p new-result)]
+                                        [else
+                                         (display "in program")(newline)
+                                         (pretty-print new-p)(newline)
+                                         (error 'check-passes
+                                                "differing results in compiler '~a' on test '~a' pass '~a', expected ~a, not ~a"
+                                                name test-name pass-name result
+                                                new-result
+                                                )])]
+                                 [else ;; no result to check yet
+                                  (loop (cdr passes) new-p new-result)]))]
+                        [else
+                         (loop (cdr passes) new-p result)])])]))]
+     [else (error 'check-passes "unexpected type error raised by compiler '~a'" name)])))
 
 
 (define (compile passes)
@@ -316,7 +316,7 @@
     (define file-base (string-trim prog-file-name ".rkt"))
     (define out-file-name (string-append file-base ".s"))
     (call-with-output-file
-        out-file-name
+      out-file-name
       #:exists 'replace
       (lambda (out-file)
         (define sexp (read-program prog-file-name))
@@ -328,9 +328,9 @@
                                 (match (car passes)
                                   [`(,name ,pass ,interp)
                                    (let ([new-p (pass p)])
-                                     (trace (string-append "running pass: "
-                                                           name)
-                                            (strip-has-type new-p))
+				     (trace (string-append "running pass: "
+							   name)
+					    (strip-has-type new-p))
                                      (loop (cdr passes) new-p)
                                      )])]))])
               (cond [(string? x86)
@@ -391,7 +391,7 @@
         (error (format "test ~a failed, unexpected type error" test-name)) 
         '())
     (if typechecks
-        (if (system (format "gcc -c -g -std=c99 -o runtime.o tests/~a.s" test-name))
+        (if (system (format "gcc -g -std=c99 runtime.o tests/~a.s" test-name))
             (void) (exit))
         '())
     (let* ([input (if (file-exists? (format "tests/~a.in" test-name))
@@ -399,10 +399,12 @@
                       "")]
            [output (if (file-exists? (format "tests/~a.res" test-name))
                        (call-with-input-file
-                           (format "tests/~a.res" test-name)
+                         (format "tests/~a.res" test-name)
                          (lambda (f) (read-line f)))
                        "42")]
-           [progout (if typechecks (process (format "./a.out~a" input)) 'type-error)]
+           [progout (if typechecks
+                        (process (format "./a.out~a" input))
+                        'type-error)]
            )
       ;; process returns a list, it's first element is stdout
       (match progout
@@ -413,8 +415,8 @@
          (control-fun 'wait)
          (cond [(eq? (control-fun 'status) 'done-ok)
                 (let ([result (read-line (car progout))])
-                  (unless (not (eq? result eof))
-                    (error "error: program did not produce output"))
+		  (unless (not (eq? result eof))
+			  (error "error: program did not produce output"))
                   (if (eq? (string->symbol result) (string->symbol output))
                       (begin (display test-name)(display " ")(flush-output))
                       (error (format "test ~a failed, output: ~a, expected ~a" 
@@ -441,8 +443,8 @@
   (define (handler e)
     (vomit "test-typecheck" tcer exp e)
     (when (at-debug-level? 1)
-      (display (exn-message e))
-      (newline)(newline))
+	  (display (exn-message e))
+	  (newline)(newline))
     #f)
   (if (eq? tcer #f)
       exp
@@ -456,11 +458,11 @@
 (define assert
   (lambda (msg b)
     (if (not b)
-        (begin
-          (display "ERROR: ")
-          (display msg)
-          (newline))
-        (void))))
+	(begin
+	  (display "ERROR: ")
+	  (display msg)
+	  (newline))
+	(void))))
 
 ;; (case-> (symbol . -> . symbol) (string . -> . string))
 (define (racket-id->c-id x)
@@ -486,8 +488,8 @@
 (define rootstack-reg 'r15)
 ;; There are 11 other general registers:
 (define general-registers (vector 'rbx 'rcx 'rdx 'rsi 'rdi
-                                  'r8 'r9 'r10 'r12 
-                                  'r13 'r14))
+    				  'r8 'r9 'r10 'r12 
+				  'r13 'r14))
 
 (define arg-registers (void))
 (define registers-for-alloc (void))
@@ -514,9 +516,9 @@
 (define byte-register-table
   (make-immutable-hash
    `((ah . rax) (al . rax)
-                (bh . rbx) (bl . rbx)
-                (ch . rcx) (cl . rcx)
-                (dh . rdx) (dl . rdx))))
+     (bh . rbx) (bl . rbx)
+     (ch . rcx) (cl . rcx)
+     (dh . rdx) (dl . rdx))))
 
 (define (byte-reg->full-reg x)
   (let ([r? (hash-ref byte-register-table x #f)])
@@ -528,21 +530,21 @@
 ;; and registers-for-alloc.
 (define reg-colors
   '((rax . -1) (r11 . -2) (r15 . -3) (rbp . -4) (__flag . -5)
-               (rbx . 0) (rcx . 1) (rdx . 2) (rsi . 3) (rdi . 4)
-               (r8 . 5) (r9 . 6) (r10 . 7) (r12 . 8) (r13 . 9)
-               (r14 . 10)))
+    (rbx . 0) (rcx . 1) (rdx . 2) (rsi . 3) (rdi . 4)
+    (r8 . 5) (r9 . 6) (r10 . 7) (r12 . 8) (r13 . 9)
+    (r14 . 10)))
 
 (define (register->color r)
   (cdr (assq r reg-colors)))
 
 (define registers (set-union (list->set (vector->list general-registers))
-                             (set 'rax 'r11 'r15 'rsp 'rbp '__flag)))
+			     (set 'rax 'r11 'r15 'rsp 'rbp '__flag)))
 
 (define (align n alignment)
   (cond [(eq? 0 (modulo n alignment))
-         n]
-        [else
-         (+ n (- alignment (modulo n alignment)))]))
+	 n]
+	[else
+	 (+ n (- alignment (modulo n alignment)))]))
 
 
 ; Produces a string containing x86 instructions that print whatever is
@@ -593,17 +595,17 @@
 (define (print-dot graph file-name)
   (if (at-debug-level? 1)
       (call-with-output-file file-name #:exists 'replace
-        (lambda (out-file)
-          (write-string "strict graph {" out-file) (newline out-file)
+	(lambda (out-file)
+	  (write-string "strict graph {" out-file) (newline out-file)
 	  
-          (for ([v (vertices graph)])
-            (write-string (format "~a;\n" v) out-file))
+	  (for ([v (vertices graph)])
+	       (write-string (format "~a;\n" v) out-file))
 	  
-          (for ([v (vertices graph)])
-            (for ([u (adjacent graph v)])
-              (write-string (format "~a -- ~a;\n" u v) out-file)))
+	  (for ([v (vertices graph)])
+	       (for ([u (adjacent graph v)])
+		    (write-string (format "~a -- ~a;\n" u v) out-file)))
 	  
-          (write-string "}" out-file)
-          (newline out-file)))
+	  (write-string "}" out-file)
+	  (newline out-file)))
       '()))
       

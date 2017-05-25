@@ -5,25 +5,31 @@
          "select-instr.rkt"
          "assign-homes.rkt"
          "patch-instr.rkt"
-         "print-x86.rkt"
-         "utilities.rkt"
+         "print-x86.rkt"         
          "typecheck-R1.rkt"
          "typecheck-R2.rkt"
-         "../interpreters/interp-R1.rkt"
-         "test_comp.rkt")
+         "utilities.rkt"
+         "../interpreters/interp-R1.rkt")
 
 (provide compile
          compile-C0
-         p)
+         compiler)
+
+(define passes
+  (list (list "Uniquify" (uniquify (make-hash)) (interp-R1 '()))
+        (list "Flatten" flatten-prog (interp-R1 '()))
+        (list "Select-instructions" select-instr (interp-R1 '()))
+        (list "Assign-homes" (assign-homes (list)) (interp-R1 '()))
+        (list "Patch-instructions" patch-instr (interp-R1 '()))
+        (list "Print-x86" print-x86 (interp-R1 '()))))
+
+(define compiler (compile-file typecheck-R1 passes))
 
 (define compile-C0
   (lambda (prog)
-    (flatten
-     ((uniquify (make-hash))
-     prog))))
-
-(define compiler (compile-file typecheck-R1 passes))
-(compiler "tests/R0_1.rkt")
+    (flatten-prog
+     ((uniquify '())
+      prog))))
 
 (define compile
   (lambda (prog)
@@ -33,5 +39,13 @@
        (select-instr
         (compile-C0 prog)))))))
 
-(define p (read-program "./tests/R0_1.rkt"))
-;(compile-C0 p)
+(define prog (read-program "tests/R1_6.rkt"))
+;(compile-C0 prog)
+;(printf (compile prog))
+
+(compiler-tests
+ "compiler"
+ typecheck-R1
+ passes
+ "R1"
+ '(1 2 3 4 5 6 7 8 9))
