@@ -37,3 +37,10 @@
                 [assigns `((assign ,expr ,e))])
          (values expr assigns vars))]
       [else (printf "~a\n" e)])))
+
+(require "utilities.rkt"
+         "uniquify.rkt")
+
+(define prog (read-program "tests/R1_10.rkt"))
+
+(flatten-prog ((uniquify '()) prog))
