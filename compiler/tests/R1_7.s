@@ -2,21 +2,15 @@
 _main:
 	pushq	%rbp
 	movq	%rsp, %rbp
-	subq	$128, %rsp
-	movq	$10, -120(%rbp)
-	movq	$20, -112(%rbp)
-	movq	-112(%rbp), %rax
-	movq	%rax, -104(%rbp)
-	addq	$12, -104(%rbp)
-	movq	-104(%rbp), %rax
-	movq	%rax, -96(%rbp)
-	movq	-120(%rbp), %rax
-	addq	-96(%rbp), %rax
-	movq	%rax, -96(%rbp)
-	movq	-96(%rbp), %rax
+	subq	$32, %rsp
+	movq	$10, %rbx
+	movq	$20, %rcx
+	addq	$12, %rcx
+	addq	%rbx, %rcx
+	movq	%rcx, %rax
 	movq	%rax, %rdi
 	callq	_write_int
 	movq	$0, %rax
-	addq	$128, %rsp
+	addq	$32, %rsp
 	popq	%rbp
 	retq

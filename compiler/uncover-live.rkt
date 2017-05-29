@@ -25,7 +25,7 @@
       [else (car live-after)]
       )))
 
-; conver which vars are live when
+; uncover which vars are live when
 ; takes program after select-instr pass and adds node b/w
 ; vars and instrs nodes
 
@@ -45,23 +45,3 @@
          `(program ,vars ,(cdr live-afters) ,instrs)]
         [else (error 'uncover-live "program not recognized")]
         ))))
-
-(define p '(program
-            (temp37980 v37975 temp37981 x37977 temp37982 x37977 w37976 temp37984 z37979 temp37983)
-            ((movq (int 1) (var v37975))
-             (movq (int 46) (var w37976))
-             (movq (var v37975) (var temp37980))
-             (addq (int 7) (var temp37980))
-             (movq (var temp37980) (var x37977))
-             (movq (int 4) (var temp37981))
-             (addq (var x37977) (var temp37981))
-             (movq (var temp37981) (var y37978))
-             (movq (var x37977) (var temp37982))
-             (addq (var w37976) (var temp37982))
-             (movq (var temp37982) (var z37979))
-             (movq (var y37978) (var temp37983))
-             (negq (var temp37983))
-             (movq (var z37979) (var temp37984))
-             (addq (var temp37983) (var temp37984))
-             (movq (var temp37984) (reg rax))
-             (retq))))

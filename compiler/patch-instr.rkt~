@@ -8,8 +8,9 @@
   (lambda (e)
     (match e
       [`(program ,framesize ,exprs)
-       (define asm (map patch-instr exprs))
-       `(program ,framesize (,@(append* asm)))]
+       (define asm (filter (lambda (e) (not (null? e)))
+                           (map patch-instr exprs)))
+       `(program ,framesize (,@asm))]
       [`(deref ,reg ,offset) 'deref]
       [`(var ,name) 'var]
       [`(reg ,reg) 'reg]
@@ -17,10 +18,11 @@
       [`(movq ,src ,dest)
        (let ([src_t (patch-instr src)]
              [dest_t (patch-instr dest)])
-         (if (and (eq? src_t 'deref) (eq? dest_t 'deref))
-             `((movq ,src (reg rax))
-               (movq (reg rax) ,dest))
-             `(,e)))]
+         (cond [(and (eq? src_t 'deref) (eq? dest_t 'deref))
+                `((movq ,src (reg rax))
+                  (movq (reg rax) ,dest))]
+               [(equal? src dest) `()]
+               [else e]))]
       [`(addq ,src ,dest)
        (let ([src_t (patch-instr src)]
              [dest_t (patch-instr dest)])
@@ -28,27 +30,6 @@
              `((movq ,src (reg rax))
                (addq ,dest (reg rax))
                (movq (reg rax) ,dest))
-             `(,e)))]
-      [else `(,e)]
+             e))]
+      [else e]
       )))
-
-(require "uniquify.rkt"
-         "flatten.rkt"
-         "select-instr.rkt"
-         "assign-homes.rkt"
-         "utilities.rkt")
-
-(define compile-C0
-  (lambda (prog)
-    (flatten-prog
-     ((uniquify '())
-      prog))))
-
-(define prog (read-program "tests/R1_8.rkt"))
-((assign-homes (list))
- (select-instr
-  (compile-C0 prog)))
-(patch-instr
- ((assign-homes (list))
-  (select-instr
-   (compile-C0 prog))))

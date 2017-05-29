@@ -1,6 +1,7 @@
 #lang racket
 
-(require "utilities.rkt")
+(require "utilities.rkt"
+         "uniquify.rkt")
 (provide flatten-prog)
 
 ; function for flatten pass
@@ -17,13 +18,14 @@
       [`(program ,es)
        (let-values ([(expr assigns vars) (flatten-prog es)])
          `(program ,(flatten vars) ,(append assigns `((return ,expr)))))]
-      [`(let ([,x ,es]) ,b)
+      [`(let ([,x ,es]) ,b ...)
        (let-values ([(expr_es assigns_es vars_es) (flatten-prog es)]
-                    [(expr_b assigns_b vars_b) (flatten-prog b)]
+                    [(expr_b assigns_b vars_b) (map3 flatten-prog b)]
                     [(expr) (gensym 'temp)])
-         (let ([assigns (append assigns_es `((assign ,x ,expr_es)) assigns_b)]
-               [vars  (list vars_es vars_b)])
-           (values expr_b assigns vars)))]
+         (letrec ([assigns (append assigns_es `((assign ,x ,expr_es)))]
+                  [assigns_ext (append* assigns assigns_b)]
+                  [vars  (list vars_es vars_b)])
+           (values (car (flatten expr_b)) assigns_ext vars)))]
       [`(,op ,v1 ,v2)
        (let-values ([(expr_v1 assigns_v1 vars_v1) (flatten-prog v1)]
                     [(expr_v2 assigns_v2 vars_v2) (flatten-prog v2)]
