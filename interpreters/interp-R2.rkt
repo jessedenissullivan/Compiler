@@ -2,7 +2,8 @@
 
 (require "../compiler/utilities.rkt"
          racket/fixnum)
-(provide interp-R2)
+(provide interp-R2
+         primitives)
 
 (define primitives (set '+ '- 'eq? '< '<= '> '>= 'not 'read))
 
