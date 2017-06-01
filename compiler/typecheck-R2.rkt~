@@ -27,7 +27,7 @@
               "two branches of if statement are not the same type or the condition is not a boolean"
               e)))]
       [`(let ([,x ,es]) ,body)
-       (set! env (cons (cons x ((typecheck-R2 env) es)) env))
+       (set! env (cons env (cons x ((typecheck-R2 env) es))))
        ((typecheck-R2 env) body)]
       [`(not ,(app (typecheck-R2 env) T))
        (match T
@@ -65,4 +65,4 @@
       )))
 
 (require "utilities.rkt")
-((typecheck-R2 '()) (read-program "tests/R2_8.rkt"))
+((typecheck-R2 '()) (read-program "tests/R2_7.rkt"))

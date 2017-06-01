@@ -48,16 +48,6 @@
        (select-instr
         (compile-C0 prog)))))))
 
-(define compile-reg
-  (lambda (prog)
-    (print-x86
-     (patch-instr
-      (allocate-registers
-       (build-interference
-        (uncover-live
-         (select-instr
-          (compile-C0 prog)))))))))
-
 (define test-reg-alloc
   (lambda (prog)
     (select-instr
@@ -70,9 +60,7 @@
 ;(select-instr p)
 ;(uncover-live (select-instr p))
 ;(build-interference (uncover-live (select-instr p)))
-;(allocate-registers (build-interference (uncover-live (select-instr p))))
-;(patch-instr (allocate-registers (build-interference (uncover-live (select-instr p)))))
+(allocate-registers (build-interference (uncover-live (select-instr p))))
+(patch-instr (allocate-registers (build-interference (uncover-live (select-instr p)))))
 
-(printf (compile-reg prog))
-(newline)
-(compiler-tests "compiler" typecheck-R1 passes "R1" '(1 2 3 4 5 6 7 8 9 10 11 12 13))
+;(compiler-tests "compiler" typecheck-R1 passes "R1" '(1 2 3 4 5 6 7 8 9 10 11 12 13))

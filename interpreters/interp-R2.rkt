@@ -66,7 +66,7 @@
        (define new-env (cons (cons x v) env))
        ((interp-R2 new-env) body)]
       [`(program ,e)
-       ((interp-R2 '()) e)]
+       ((interp-R2 env) e)]
       )))
 
-((interp-R2 '()) (read-program "../compiler/tests/R2_5.rkt"))
+((interp-R2 '()) (read-program "../compiler/tests/R2_6.rkt"))
